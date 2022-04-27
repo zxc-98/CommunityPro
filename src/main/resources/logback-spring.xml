@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <contextName>community</contextName>
-    <property name="LOG_PATH" value="D:/work/data"/>
+    <property name="LOG_PATH" value="/opt/sdatmp/zxc/javaPro/data/"/>
     <property name="APPDIR" value="community"/>
 
     <!-- error file -->
@@ -81,7 +81,7 @@
         </filter>
     </appender>
 
-    <logger name="com.nowcoder.community" level="debug"/>
+    <logger name="com.zxc.community" level="debug"/>
 
     <root level="info">
         <appender-ref ref="FILE_ERROR"/>
