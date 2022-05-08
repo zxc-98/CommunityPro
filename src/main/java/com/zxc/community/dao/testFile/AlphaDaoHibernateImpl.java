@@ -1,5 +1,6 @@
-package com.zxc.community.dao;
+package com.zxc.community.dao.testFile;
 
+import com.zxc.community.dao.AlphaDao;
 import org.springframework.stereotype.Repository;
 
 @Repository("alphaHibernate")

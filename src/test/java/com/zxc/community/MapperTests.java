@@ -1,8 +1,10 @@
 package com.zxc.community;
 
 import com.zxc.community.dao.DiscussPostMapper;
+import com.zxc.community.dao.LoginTicketMapper;
 import com.zxc.community.dao.UserMapper;
 import com.zxc.community.entity.DiscussPost;
+import com.zxc.community.entity.LoginTicket;
 import com.zxc.community.entity.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,6 +26,9 @@ public class MapperTests {
 
     @Autowired
     private DiscussPostMapper discussPostMapper;
+
+    @Autowired
+    private LoginTicketMapper loginTicketMapper;
 
     @Test
     public void testSelectUser() {
@@ -73,6 +78,28 @@ public class MapperTests {
 
         int rows = discussPostMapper.selectDiscussPostRows(149);
         System.out.println(rows);
+    }
+
+
+    @Test
+    public void testInsertLoginTicket() {
+        LoginTicket loginTicket = new LoginTicket();
+        loginTicket.setUserId(101);
+        loginTicket.setTicket("abs");
+        loginTicket.setStatus(0);
+        loginTicket.setExpired(new Date(System.currentTimeMillis() + 1000 * 60 * 10));
+
+        int i = loginTicketMapper.insertLoginTicket(loginTicket);
+        System.out.println(i);
+    }
+
+    @Test
+    public void testSelectLogin(){
+        LoginTicket loginTicket = loginTicketMapper.selectByTicket("abs");
+        System.out.println(loginTicket);
+
+        loginTicketMapper.updateStatus("abs", 1);
+        System.out.println(loginTicket);
     }
 
 }
