@@ -108,4 +108,41 @@ public class UserController {
             logger.error("读取图像失败： " + e.getMessage());
         }
     }
+
+
+    @RequestMapping(path = "/updatePassword", method = RequestMethod.POST)
+    public String updatePassword(Model model, String prePassword, String curPassword, String checkPassword) {
+        if(prePassword == null) {
+            model.addAttribute("prePasswordErr","请输入原始密码!");
+            return "/site/setting";
+        }
+
+        User user = hostHolder.getUser();
+        if(!user.getPassword().equals(CommunityUtil.md5(prePassword + user.getSalt()))){
+            model.addAttribute("prePasswordErr","原密码不正确，请再次输入!");
+            return "/site/setting";
+        }
+
+        if (curPassword == null) {
+            model.addAttribute("curPasswordErr", "请输入新密码!");
+            return "/site/setting";
+        }
+
+        if (curPassword.equals(prePassword)) {
+            model.addAttribute("curPasswordErr", "输入密码和原密码相同!");
+            return "/site/setting";
+        }
+
+        if (!curPassword.equals(checkPassword)) {
+            model.addAttribute("checkPasswordErr", "确认密码不正确!");
+            return "/site/setting";
+        }
+
+        String newPassword = CommunityUtil.md5(curPassword + user.getSalt());
+        userService.updatePassword(user.getId(), newPassword);
+
+        return "redirect:/index";
+    }
+
+
 }
