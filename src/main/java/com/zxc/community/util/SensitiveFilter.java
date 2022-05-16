@@ -1,5 +1,7 @@
 package com.zxc.community.util;
 
+import org.apache.commons.lang3.CharUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -19,18 +21,33 @@ public class SensitiveFilter {
     //ROOT
     private TrieNode rootNode = new TrieNode();
 
+//    @PostConstruct
+//    public void init() {
+//        try (
+//                InputStream is = this.getClass().getClassLoader().getResourceAsStream("/sensitive-word.txt");
+//                BufferedReader reader = new BufferedReader(new InputStreamReader(is));)
+//        {
+//            String keyWord;
+//            while ((keyWord = reader.readLine()) != null) {
+//                addKeyWord(keyWord);
+//            }
+//        } catch (IOException e) {
+//            logger.error("加载敏感词失败" + e.getMessage());
+//        }
+//    }
     @PostConstruct
     public void init() {
         try (
-                InputStream is = this.getClass().getClassLoader().getResourceAsStream("sensitive-word.txt");
-                BufferedReader reader = new BufferedReader(new InputStreamReader(is));)
-        {
-            String keyWord;
-            while ((keyWord = reader.readLine()) != null) {
-                addKeyWord(keyWord);
+                InputStream is = this.getClass().getClassLoader().getResourceAsStream("sensitive-word");
+                BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        ) {
+            String keyword;
+            while ((keyword = reader.readLine()) != null) {
+                // 添加到前缀树
+                this.addKeyWord(keyword);
             }
         } catch (IOException e) {
-            logger.error("加载敏感词失败" + e.getMessage());
+            logger.error("加载敏感词文件失败: " + e.getMessage());
         }
     }
 
@@ -41,7 +58,8 @@ public class SensitiveFilter {
             Character c = keyword.charAt(i);
             TrieNode subNode = temp.getSubNode(c);
             if(subNode == null) {
-                temp.addSubNode(c, new TrieNode());
+                subNode = new TrieNode();
+                temp.addSubNode(c, subNode);
             }
 
             temp = subNode;
@@ -50,7 +68,52 @@ public class SensitiveFilter {
             }
         }
     }
+    
+    public String filter(String text) {
+        if (StringUtils.isBlank(text)){
+            return null;
+        }
 
+        TrieNode temp = rootNode;
+        int begin = 0;
+        int position = 0;
+        StringBuilder sb = new StringBuilder();
+        while(position < text.length()) {
+            char c = text.charAt(position);
+            if (isSymbol(c)) {
+                if (temp == rootNode){
+                    begin++;
+                    sb.append(c);
+                }
+                position++;
+                continue;
+            }
+
+            // next
+            temp = temp.getSubNode(c);
+            if (temp == null) {
+                sb.append(c);
+                position = ++begin;
+                temp = rootNode;
+            }
+            else if (temp.isEnd()) {
+                begin = ++position;
+                sb.append(REPLACEMENT);
+                temp = rootNode;
+            }
+            else {
+                ++position;
+            }
+        }
+
+        return sb.toString();
+    }
+
+    //// 判断是否为符号
+    private boolean isSymbol(char c) {
+        // 0x2E80~0x9FFF 是东亚文字范围
+        return !CharUtils.isAsciiAlphanumeric(c) && (c < 0x2E80 || c > 0x9FFF);
+    }
     
 
     //前缀树

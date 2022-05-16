@@ -6,6 +6,7 @@ import com.zxc.community.dao.UserMapper;
 import com.zxc.community.entity.DiscussPost;
 import com.zxc.community.entity.LoginTicket;
 import com.zxc.community.entity.User;
+import com.zxc.community.util.SensitiveFilter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,27 @@ public class MapperTests {
 
     @Autowired
     private LoginTicketMapper loginTicketMapper;
+
+    @Autowired
+    private SensitiveFilter sensitiveFilter;
+
+    @Test
+    public void testDiscussPostMapper() {
+        DiscussPost discussPost = new DiscussPost();
+        discussPost.setUserId(199);
+        discussPost.setTitle("test");
+        discussPost.setContent("xxxxx");
+        discussPost.setCreateTime(new Date());
+        int i = discussPostMapper.insertDiscussPost(discussPost);
+        System.out.println(i);
+    }
+
+    @Test
+    public void testSensitiveFilter() {
+        String text = "真是❤小❤学❤生❤";
+        text = sensitiveFilter.filter(text);
+        System.out.println(text);
+    }
 
     @Test
     public void testSelectUser() {
