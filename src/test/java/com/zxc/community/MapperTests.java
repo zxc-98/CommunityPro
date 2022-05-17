@@ -6,6 +6,7 @@ import com.zxc.community.dao.UserMapper;
 import com.zxc.community.entity.DiscussPost;
 import com.zxc.community.entity.LoginTicket;
 import com.zxc.community.entity.User;
+import com.zxc.community.service.AlphaService;
 import com.zxc.community.util.SensitiveFilter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,6 +34,9 @@ public class MapperTests {
 
     @Autowired
     private SensitiveFilter sensitiveFilter;
+
+    @Autowired
+    private AlphaService alphaService;
 
     @Test
     public void testDiscussPostMapper() {
@@ -122,6 +126,13 @@ public class MapperTests {
 
         loginTicketMapper.updateStatus("abs", 1);
         System.out.println(loginTicket);
+    }
+
+
+    @Test
+    public void testTransactional(){
+        Object ans = alphaService.save1();
+        System.out.println(ans);
     }
 
 }
