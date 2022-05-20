@@ -2,6 +2,7 @@ package com.zxc.community.controller;
 
 import com.zxc.community.annotation.LoginRequired;
 import com.zxc.community.entity.User;
+import com.zxc.community.service.LikeService;
 import com.zxc.community.service.UserService;
 import com.zxc.community.util.CommunityUtil;
 import com.zxc.community.util.HostHolder;
@@ -22,6 +23,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/user")
@@ -43,6 +46,9 @@ public class UserController {
 
     @Autowired
     private HostHolder hostHolder;
+
+    @Autowired
+    private LikeService likeService;
 
     @LoginRequired
     @RequestMapping(path = "/setting", method = RequestMethod.GET)
@@ -147,5 +153,17 @@ public class UserController {
         return "redirect:/index";
     }
 
+    @RequestMapping(value = "/profile/{userId}", method = RequestMethod.GET)
+    public String findUserLikeCount(@PathVariable("userId") int userId, Model model) {
+        User user = userService.findUserById(userId);
+        if (user == null) {
+            throw new RuntimeException("该用户不存在!");
+        }
+        int userLikeCount = likeService.findUserLikeCount(userId);
 
+        model.addAttribute("user", user);
+        model.addAttribute("likeCount",userLikeCount);
+
+        return "/site/profile";
+    }
 }

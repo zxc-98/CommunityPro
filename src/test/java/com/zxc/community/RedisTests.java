@@ -11,6 +11,8 @@ import org.springframework.data.redis.core.SessionCallback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Set;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @ContextConfiguration(classes = CommunityApplication.class)
@@ -38,6 +40,12 @@ public class RedisTests {
 
         System.out.println(redisTemplate.opsForHash().get(redisKey,"id"));
         System.out.println(redisTemplate.opsForHash().get(redisKey,"username"));
+    }
+
+    @Test
+    public void delete() {
+        Set<String> keys = redisTemplate.keys("*");
+        redisTemplate.delete(keys);
     }
 
     //
