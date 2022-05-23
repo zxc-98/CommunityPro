@@ -22,6 +22,12 @@
         limit #{offset}, #{limit}
     </select>
 
+    <select id="findCommentById" resultType="Comment">
+        select <include refid="selectFields"></include>
+        from comment
+        where id = #{id}
+    </select>
+
     <select id="selectCommentCount" resultType="int">
         select count(id)
         from comment where status = 0 and entity_type = #{entityType} and entity_id = #{entityId}

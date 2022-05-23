@@ -1,7 +1,10 @@
 package com.zxc.community.controller;
 
+import com.zxc.community.entity.Event;
 import com.zxc.community.entity.User;
+import com.zxc.community.event.EventProducer;
 import com.zxc.community.service.LikeService;
+import com.zxc.community.util.CommunityConstant;
 import com.zxc.community.util.CommunityUtil;
 import com.zxc.community.util.HostHolder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,16 +17,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Controller
-public class LikeController {
+public class LikeController implements CommunityConstant {
     @Autowired
     private LikeService likeService;
 
     @Autowired
     private HostHolder hostHolder;
 
+    @Autowired
+    private EventProducer eventProducer;
+
     @RequestMapping(path = "/like", method = RequestMethod.POST)
     @ResponseBody
-    public String like(int entityType, int entityId, int entityUserId) {
+    public String like(int entityType, int entityId, int entityUserId, int postId) {
         User user = hostHolder.getUser();
 
         likeService.like(user.getId(), entityType, entityId, entityUserId);
@@ -34,6 +40,17 @@ public class LikeController {
         Map<String, Object> map = new HashMap<>();
         map.put("likeCount", likeCount);
         map.put("likeStatus", likeStatus);
+
+        if (likeStatus == 1) {
+            Event event = new Event();
+            event.setUserId(user.getId())
+                    .setEntityUserId(entityUserId)
+                    .setEntityType(entityType)
+                    .setTopic(TOPIC_LIKE)
+                    .setEntityId(entityId)
+                    .setData("postId", postId);
+            eventProducer.fireEvent(event);
+        }
 
         return CommunityUtil.getJSONString(0, null, map);
     }
