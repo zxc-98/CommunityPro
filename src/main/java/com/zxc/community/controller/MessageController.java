@@ -232,4 +232,44 @@ public class MessageController implements CommunityConstant {
 
         return "/site/notice";
     }
+
+
+    @RequestMapping(path = "/notice/detail/{topic}", method = RequestMethod.GET)
+    public String getNoticeList(Model model, @PathVariable("topic")String topic, Page page) {
+        //
+        User user = hostHolder.getUser();
+
+        // page
+        page.setLimit(5);
+        page.setRows(messageService.findNoticeCount(user.getId(), topic));
+        page.setPath("/notice/detail/" + topic);
+
+        // info
+        List<Message> messageList = messageService.findNotices(user.getId(), topic,page.getLimit(), page.getOffset());
+        List<Map<String,Object>> noticeList = new ArrayList<>();
+        if (messageList != null) {
+            for (Message notice : messageList) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("notice", notice);
+                String content = HtmlUtils.htmlUnescape(notice.getContent());
+                HashMap<String, Object> data = JSONObject.parseObject(content, HashMap.class);
+                map.put("user", userService.findUserById((Integer) data.get("userId")));
+                map.put("entityType", data.get("entityType"));
+                map.put("entityId", data.get("entityId"));
+                map.put("postId",data.get("postId"));
+                // 通知作者
+                map.put("fromUser", userService.findUserById(notice.getFromId()));
+                noticeList.add(map);
+            }
+        }
+        model.addAttribute("notices", noticeList);
+
+        //set
+        List<Integer> ids = getLetterIds(messageList);
+        if (!ids.isEmpty()) {
+            messageService.readMessage(ids);
+        }
+
+        return "/site/notice-detail";
+    }
 }
