@@ -59,7 +59,16 @@ public interface CommunityConstant {
     String TOPIC_FOLLOW = "follow";
 
     /**
-     * 系统用户
+     * 系统用户ID
      */
     int SYSTEM_USER_ID = 1;
+
+    //权限：普通用户
+    String AUTHORITY_USER = "user";
+
+    //权限：管理员用户
+    String AUTHORITY_ADMIN = "admin";
+
+    //权限：版主
+    String AUTHORITY_MODERATOR = "moderator";
 }
