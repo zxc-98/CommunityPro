@@ -1,10 +1,8 @@
 package com.zxc.community.controller;
 
 import com.zxc.community.dao.CommentMapper;
-import com.zxc.community.entity.Comment;
-import com.zxc.community.entity.DiscussPost;
-import com.zxc.community.entity.Page;
-import com.zxc.community.entity.User;
+import com.zxc.community.entity.*;
+import com.zxc.community.event.EventProducer;
 import com.zxc.community.service.CommentService;
 import com.zxc.community.service.DiscussPostService;
 import com.zxc.community.service.LikeService;
@@ -43,6 +41,9 @@ public class DiscussPostController implements CommunityConstant {
     @Autowired
     private LikeService likeService;
 
+    @Autowired
+    private EventProducer eventProducer;
+
     @RequestMapping(path = "/add", method = RequestMethod.POST)
     @ResponseBody
     public String addDiscussPost(String title, String content) {
@@ -58,6 +59,13 @@ public class DiscussPostController implements CommunityConstant {
         discussPost.setCreateTime(new Date());
 
         discussPostService.insertDiscussPost(discussPost);
+
+        Event event = new Event().setUserId(user.getId())
+                .setEntityType(ENTITY_TYPE_POST)
+                .setEntityId(discussPost.getId())
+                .setTopic(TOPIC_PUBLISH);
+
+        eventProducer.fireEvent(event);
         return CommunityUtil.getJSONString(0, "发布成功");
     }
 
@@ -82,7 +90,7 @@ public class DiscussPostController implements CommunityConstant {
 
         //评论分页信息
         page.setLimit(5);
-        page.setPath("/discuss/detail/" +id);
+        page.setPath("/discuss/detail/" + id);
         page.setRows(post.getCommentCount());
 
         //
@@ -119,7 +127,7 @@ public class DiscussPostController implements CommunityConstant {
                         replyVO.put("user", userService.findUserById(reply.getUserId()));
 
                         // like
-                        likeCount = likeService.findEntityLikeCount(ENTITY_TYPE_COMMENT,  reply.getId());
+                        likeCount = likeService.findEntityLikeCount(ENTITY_TYPE_COMMENT, reply.getId());
                         replyVO.put("likeCount", likeCount);
 
                         //likeStatus
@@ -148,4 +156,31 @@ public class DiscussPostController implements CommunityConstant {
     }
 
 
+    // 置顶
+    @RequestMapping(path = "/top", method = RequestMethod.POST)
+    @ResponseBody
+    public String setTop(int id) {
+        discussPostService.updateType(id, 1);
+
+        return CommunityUtil.getJSONString(0);
+    }
+
+    //加精
+    @RequestMapping(path = "/wonderful", method = RequestMethod.POST)
+    @ResponseBody
+    public String setWonderful(int id) {
+        discussPostService.updateStatus(id, 1);
+
+        return CommunityUtil.getJSONString(0);
+    }
+
+
+    //delete
+    @RequestMapping(path = "/delete", method = RequestMethod.POST)
+    @ResponseBody
+    public String delete(int id) {
+        discussPostService.updateStatus(id, 2);
+
+        return CommunityUtil.getJSONString(0);
+    }
 }
