@@ -13,6 +13,10 @@ public class RedisKeyUtil {
     private static final String PREFIX_FOLLOWEE = "followee";
 
     private static final String PREFIX_KAPTCHA = "kaptcha";
+    
+    private static final String  PREFIX_UV = "uv";
+
+    private static final String PREFIX_DAU = "dau";
 
     // 某个实体的赞
     // like:entity:entityType:entityId -> set(userId)
@@ -44,5 +48,23 @@ public class RedisKeyUtil {
         return PREFIX_KAPTCHA + SPLIT + owner;
     }
 
-    //
+    // single day uv
+    public static String getUVKey(String date) {
+        return PREFIX_UV + SPLIT + date;
+    }
+
+    // 区间活跃用户
+    public static String getUVKey(String startDay, String endKey) {
+        return PREFIX_UV + SPLIT + startDay + SPLIT + endKey;
+    }
+
+    // single day dau
+    public static String getDAUKey(String date) {
+        return PREFIX_DAU + SPLIT + date;
+    }
+
+    // 区间活跃用户
+    public static String getDAUKey(String startDay, String endKey) {
+        return PREFIX_DAU + SPLIT + startDay + SPLIT + endKey;
+    }
 }
