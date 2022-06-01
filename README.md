@@ -1,4 +1,4 @@
-# communityPro 社交网站项目
+# “offer多多” 社交网站项目
 # 核心技术：
     - Spring Boot
     - Redis、Kafka
